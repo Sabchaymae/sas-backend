@@ -1,0 +1,30 @@
+# Dependencies
+**/vendor
+**/node_modules
+
+# Git
+**/.git
+**/.gitignore
+**/.gitattributes
+
+# IDE
+**/.idea
+**/.vscode
+**/*.swp
+**/*.swo
+
+# OS
+**/.DS_Store
+**/Thumbs.db
+
+# Laravel
+**/storage/logs/*
+**/storage/framework/cache/*
+**/storage/framework/sessions/*
+**/storage/framework/views/*
+**/.env
+
+# Docker
+docker-compose.yml
+.env.docker
+README.md

@@ -1,0 +1,1337 @@
+{
+  "info": {
+    "_postman_id": "5b2289c9-cb97-40ec-ae15-2ac2b8bf3d46",
+    "name": "Oriotel — Identity Service",
+    "description": "Collection complète pour tester le microservice Identity de l'ERP Oriotel.\n\n**Base URL (via Gateway):** http://localhost:8080/api/identity/api/v1\n\n**Workflow de test :**\n1. Lancer Docker: `docker compose up -d --build`\n2. Migrer + Seeder: voir les requêtes dans le dossier 'Setup'\n3. Tester le login selon le rôle voulu",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "40588008"
+  },
+  "item": [
+    {
+      "name": "🔧 Setup (Docker)",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/health",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔓 Public — Auth",
+      "item": [
+        {
+          "name": "Login — Admin (triggers 2FA)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.action === 'two_factor_required') {",
+                  "  pm.collectionVariables.set('user_id_2fa', res.user_id);",
+                  "  console.log('2FA requis — user_id:', res.user_id);",
+                  "}",
+                  "if (res.action === 'authenticated') {",
+                  "  pm.collectionVariables.set('auth_token', res.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"admin@oriotel.com\",\n  \"password\": \"Oriotel@2026\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/login",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login — Animateur (force password change)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.action === 'force_password_change') {",
+                  "  pm.collectionVariables.set('temp_token', res.token);",
+                  "  console.log('Temp token sauvegardé:', res.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"moskvaunote999@gmail.com\",\n  \"password\": \"Oriotel@2026\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/login",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login — Agence (standard login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "  pm.collectionVariables.set('auth_token', res.token);",
+                  "  console.log('Token sauvegardé:', res.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"agence@oriotel.com\",\n  \"password\": \"Oriotel@2026\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/login",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login — Compte pending (doit échouer 403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"pending@oriotel.com\",\n  \"password\": \"Oriotel@2026\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/login",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login — Mauvais mot de passe (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"agence@oriotel.com\",\n  \"password\": \"mauvais_mdp\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/login",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login — Validation échouée (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"\",\n  \"password\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/login",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📝 Public — Register",
+      "item": [
+        {
+          "name": "Register — Nouvelle demande d'accès",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Mohamed\",\n  \"last_name\": \"El Amrani\",\n  \"email\": \"test.user@agence.ma\",\n  \"cin\": \"AA123456\",\n  \"role\": \"animateur\",\n  \"phone\": \"+212612345678\",\n  \"password\": \"SecurePass@2026\",\n  \"password_confirmation\": \"SecurePass@2026\",\n  \"access_reason\": \"Gestion des réservations pour notre agence de voyage partenaire.\",\n  \"terms\": true\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/register",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register — Email déjà utilisé (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Test\",\n  \"last_name\": \"Duplicate\",\n  \"email\": \"agence@oriotel.com\",\n  \"cin\": \"BB123456\",\n  \"role\": \"animateur\",\n  \"password\": \"SecurePass@2026\",\n  \"password_confirmation\": \"SecurePass@2026\",\n  \"access_reason\": \"Test duplication.\",\n  \"terms\": true\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/register",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register — Mot de passe faible (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\",\n  \"email\": \"weak@test.com\",\n  \"cin\": \"CC123456\",\n  \"role\": \"assistant\",\n  \"password\": \"123456\",\n  \"password_confirmation\": \"123456\",\n  \"access_reason\": \"Test.\",\n  \"terms\": true\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/register",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register — Verify Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"code\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/register/verify",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "register",
+                "verify"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔐 2FA",
+      "item": [
+        {
+          "name": "2FA — Vérifier le code (après login admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "  pm.collectionVariables.set('auth_token', res.token);",
+                  "  console.log('Token 2FA complet sauvegardé:', res.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{user_id_2fa}},\n  \"code\": \"METTRE_LE_CODE_ICI\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/two-factor/verify",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "two-factor",
+                "verify"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2FA — Code incorrect (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{user_id_2fa}},\n  \"code\": \"000000\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/two-factor/verify",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "two-factor",
+                "verify"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2FA — Renvoyer le code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{user_id_2fa}}\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/two-factor/resend",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "two-factor",
+                "resend"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔑 Password Reset",
+      "item": [
+        {
+          "name": "Forgot Password — Demander un lien",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"agence@oriotel.com\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/forgot-password",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password — Email inexistant (retourne 200 quand même)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"inexistant@test.com\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/forgot-password",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password — Avec le token du mail",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"COLLER_LE_TOKEN_DU_MAIL_ICI\",\n  \"email\": \"agence@oriotel.com\",\n  \"password\": \"NouveauPass@2026\",\n  \"password_confirmation\": \"NouveauPass@2026\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/reset-password",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password — Token invalide (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"faux_token_invalide\",\n  \"email\": \"agence@oriotel.com\",\n  \"password\": \"NouveauPass@2026\",\n  \"password_confirmation\": \"NouveauPass@2026\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/reset-password",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔒 Protégé — Changement MDP Forcé",
+      "item": [
+        {
+          "name": "Force Change Password (temp_token — animateur)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "  pm.collectionVariables.set('auth_token', res.token);",
+                  "  pm.collectionVariables.set('temp_token', '');",
+                  "  console.log('Token complet obtenu après changement MDP forcé');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{temp_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"NewSecure@2026\",\n  \"password_confirmation\": \"NewSecure@2026\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/force-change-password",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "force-change-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Force Change Password — Sans token (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"NewSecure@2026\",\n  \"password_confirmation\": \"NewSecure@2026\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/force-change-password",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "force-change-password"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔒 Protégé — Profil & Session",
+      "item": [
+        {
+          "name": "GET /auth/me — Profil utilisateur",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/auth/me",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /auth/me — Sans token (401)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/auth/me",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /auth/change-password — Volontaire",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "  pm.collectionVariables.set('auth_token', res.token);",
+                  "  console.log('Nouveau token après changement MDP');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"Oriotel@2026\",\n  \"password\": \"NewPass@2026!\",\n  \"password_confirmation\": \"NewPass@2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/change-password",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /auth/change-password — Mauvais mot de passe actuel (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"mauvais_mdp\",\n  \"password\": \"NewPass@2026!\",\n  \"password_confirmation\": \"NewPass@2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/change-password",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /auth/logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('auth_token', '');",
+                  "console.log('Token supprimé — déconnecté.');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/auth/logout",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔗 Inter-Service — Validation Utilisateur",
+      "item": [
+        {
+          "name": "Valider un utilisateur actif",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/users/validate/1",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "users",
+                "validate",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Valider un utilisateur inexistant (404)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/users/validate/9999",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "users",
+                "validate",
+                "9999"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👥 Gestion Utilisateurs (CRUD)",
+      "item": [
+        {
+          "name": "GET /users — Liste tous les utilisateurs",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{gateway_url}}/users",
+              "host": ["{{gateway_url}}"],
+              "path": ["users"],
+              "query": [
+                {"key": "search", "value": "", "disabled": true},
+                {"key": "role", "value": "", "disabled": true},
+                {"key": "status", "value": "", "disabled": true},
+                {"key": "per_page", "value": "10", "disabled": true}
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /users — Créer un utilisateur",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{auth_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Karim\",\n  \"last_name\": \"Bensalem\",\n  \"email\": \"karim.bensalem@oriotel.com\",\n  \"cin\": \"DD123456\",\n  \"phone\": \"+212698765432\",\n  \"role\": \"animateur\",\n  \"password\": \"Oriotel@2026\",\n  \"password_confirmation\": \"Oriotel@2026\",\n  \"status\": \"active\",\n  \"must_change_password\": true\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/users",
+              "host": ["{{gateway_url}}"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /users/{id} — Détail d'un utilisateur",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{auth_token}}"}
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/users/1",
+              "host": ["{{gateway_url}}"],
+              "path": ["users", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /users/{id} — Modifier un utilisateur",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{auth_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+212611223344\",\n  \"status\": \"active\",\n  \"role\": \"animateur\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/users/1",
+              "host": ["{{gateway_url}}"],
+              "path": ["users", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /users/{id} — Supprimer un utilisateur (204)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{auth_token}}"}
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/users/99",
+              "host": ["{{gateway_url}}"],
+              "path": ["users", "99"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /users/{id} — Utilisateur inexistant (404)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{auth_token}}"}
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/users/9999",
+              "host": ["{{gateway_url}}"],
+              "path": ["users", "9999"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📋 Historique des Activités",
+      "item": [
+        {
+          "name": "GET /history — Liste paginée (avec filtres)",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{gateway_url}}/history?per_page=10&sort_by=created_at&sort_dir=desc",
+              "host": ["{{gateway_url}}"],
+              "path": ["history"],
+              "query": [
+                {"key": "per_page", "value": "10"},
+                {"key": "sort_by", "value": "created_at"},
+                {"key": "sort_dir", "value": "desc"},
+                {"key": "type", "value": "", "disabled": true},
+                {"key": "module", "value": "", "disabled": true},
+                {"key": "user", "value": "", "disabled": true},
+                {"key": "search", "value": "", "disabled": true},
+                {"key": "date_from", "value": "", "disabled": true},
+                {"key": "date_to", "value": "", "disabled": true}
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /history/stats — Statistiques globales",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{gateway_url}}/history/stats",
+              "host": ["{{gateway_url}}"],
+              "path": ["history", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /history/filters — Valeurs de filtres disponibles",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{gateway_url}}/history/filters",
+              "host": ["{{gateway_url}}"],
+              "path": ["history", "filters"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /history/export — Export CSV",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "text/csv"}],
+            "url": {
+              "raw": "{{gateway_url}}/history/export",
+              "host": ["{{gateway_url}}"],
+              "path": ["history", "export"],
+              "query": [
+                {"key": "type", "value": "", "disabled": true},
+                {"key": "module", "value": "", "disabled": true},
+                {"key": "date_from", "value": "", "disabled": true},
+                {"key": "date_to", "value": "", "disabled": true}
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /history/{id} — Détail d'un log",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{gateway_url}}/history/1",
+              "host": ["{{gateway_url}}"],
+              "path": ["history", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /history/purge — Purger les anciens logs",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{auth_token}}"}
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/history/purge?days=30",
+              "host": ["{{gateway_url}}"],
+              "path": ["history", "purge"],
+              "query": [{"key": "days", "value": "30"}]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🎭 Rôles & Permissions",
+      "item": [
+        {
+          "name": "GET /roles-permissions/roles — Liste tous les rôles",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{gateway_url}}/roles-permissions/roles",
+              "host": ["{{gateway_url}}"],
+              "path": ["roles-permissions", "roles"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /roles-permissions/roles — Créer un rôle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"superviseur\",\n  \"color\": \"#8B5CF6\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/roles-permissions/roles",
+              "host": ["{{gateway_url}}"],
+              "path": ["roles-permissions", "roles"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /roles-permissions/roles — Nom dupliqué (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/roles-permissions/roles",
+              "host": ["{{gateway_url}}"],
+              "path": ["roles-permissions", "roles"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /roles-permissions/roles/{id}/users — Utilisateurs d'un rôle",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{gateway_url}}/roles-permissions/roles/1/users",
+              "host": ["{{gateway_url}}"],
+              "path": ["roles-permissions", "roles", "1", "users"],
+              "query": [{"key": "search", "value": "", "disabled": true}]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /roles-permissions/permissions — Matrice de permissions",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{gateway_url}}/roles-permissions/permissions?role_id=1",
+              "host": ["{{gateway_url}}"],
+              "path": ["roles-permissions", "permissions"],
+              "query": [
+                {"key": "role_id", "value": "1"},
+                {"key": "user_ids[]", "value": "", "disabled": true}
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /roles-permissions/permissions/sync — Synchroniser les permissions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role_id\": 1,\n  \"user_ids\": [],\n  \"permissions\": {\n    \"users.view\": true,\n    \"users.create\": false,\n    \"users.edit\": false,\n    \"users.delete\": false\n  }\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/roles-permissions/permissions/sync",
+              "host": ["{{gateway_url}}"],
+              "path": ["roles-permissions", "permissions", "sync"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /roles-permissions/seed — Seeder les données de base (dev)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{gateway_url}}/roles-permissions/seed",
+              "host": ["{{gateway_url}}"],
+              "path": ["roles-permissions", "seed"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "gateway_url",
+      "value": "http://localhost:8080/api/identity/v1"
+    },
+    {
+      "key": "auth_token",
+      "value": ""
+    },
+    {
+      "key": "temp_token",
+      "value": ""
+    },
+    {
+      "key": "user_id_2fa",
+      "value": ""
+    }
+  ]
+}
