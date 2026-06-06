@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class UserService
 {
@@ -46,20 +47,29 @@ class UserService
             $data['photo'] = $data['photo']->store('avatars', 'public');
         }
 
-        $data['password'] = Hash::make($data['password']);
+        // Génération automatique du mot de passe si non fourni
+        $plainPassword = $data['password'] ?? Str::random(10);
+        $data['password'] = Hash::make($plainPassword);
+        
+        // Toujours forcer le changement de mot de passe pour les nouveaux utilisateurs
+        $data['must_change_password'] = true;
         
         if (empty($data['statut'])) {
             $data['statut'] = 'active';
         }
 
+        // L'identifiant est généré automatiquement dans le modèle User (méthode booted)
         $user = User::create($data);
+        
+        // On attache le mot de passe en clair pour l'affichage initial (non persisté)
+        $user->generated_password = $plainPassword;
 
         // Log the activity
         ActivityLogService::log(
             ActivityLog::TYPE_CREATION,
             "Création de l'utilisateur: {$user->full_name}",
             ActivityLog::MODULE_USERS,
-            "Un nouvel utilisateur avec l'email {$user->email} a été créé par le système."
+            "Un nouvel utilisateur avec l'identifiant {$user->identifiant} a été créé."
         );
 
         return $user;

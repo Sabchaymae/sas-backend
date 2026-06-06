@@ -1,9 +1,6 @@
+
 # ============================================
-# Oriotel ERP — Microservices Docker Compose
-# ============================================
-# Usage:
-#   cp .env.docker .env
-#   docker compose up -d --build
+# Oriotel1 ERP — Microservices Docker Compose
 # ============================================
 
 x-php-service: &php-service
@@ -13,7 +10,7 @@ x-php-service: &php-service
   restart: unless-stopped
   working_dir: /var/www/html
   networks:
-    - oriotel-network
+    - oriotel1-network
   depends_on:
     mysql:
       condition: service_healthy
@@ -30,8 +27,8 @@ x-php-environment: &php-env
   DB_CONNECTION: mysql
   DB_HOST: mysql
   DB_PORT: 3306
-  DB_USERNAME: ${MYSQL_USER:-oriotel}
-  DB_PASSWORD: ${MYSQL_PASSWORD:-oriotel_secret}
+  DB_USERNAME: ${MYSQL_USER:-oriotel1}
+  DB_PASSWORD: ${MYSQL_PASSWORD:-oriotel1_secret}
   REDIS_HOST: redis
   REDIS_PORT: 6379
   CACHE_STORE: file
@@ -40,7 +37,7 @@ x-php-environment: &php-env
   APP_ENV: local
   APP_DEBUG: "true"
   CORS_ALLOWED_ORIGINS: http://localhost:5173,http://localhost:5174,http://localhost:3000
-  SANCTUM_STATEFUL_DOMAINS: localhost:5173,localhost:8080,localhost:3000,127.0.0.1
+  SANCTUM_STATEFUL_DOMAINS: localhost:5173,localhost:8090,localhost:3000,127.0.0.1
   COMPOSER_PROCESS_TIMEOUT: 0
 
 x-nginx-sidecar: &nginx-sidecar
@@ -49,7 +46,7 @@ x-nginx-sidecar: &nginx-sidecar
   volumes:
     - ./docker/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
   networks:
-    - oriotel-network
+    - oriotel1-network
 
 services:
 
@@ -59,19 +56,20 @@ services:
 
   mysql:
     image: mysql:8.0
-    container_name: oriotel-mysql
+    container_name: oriotel1-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-oriotel_root}
-      MYSQL_USER: ${MYSQL_USER:-oriotel}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-oriotel_secret}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-oriotel1_root}
+      MYSQL_USER: ${MYSQL_USER:-oriotel1}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-oriotel1_secret}
+      MYSQL_DATABASE: oriotel1_identity
     ports:
-      - "${MYSQL_PORT:-3307}:3306"
+      - "3310:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - mysql1-data:/var/lib/mysql
       - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
-      - oriotel-network
+      - oriotel1-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -80,14 +78,14 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: oriotel-redis
+    container_name: oriotel1-redis
     restart: unless-stopped
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "6380:6379"
     volumes:
-      - redis-data:/data
+      - redis1-data:/data
     networks:
-      - oriotel-network
+      - oriotel1-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -96,17 +94,17 @@ services:
 
   phpmyadmin:
     image: phpmyadmin:latest
-    container_name: oriotel-phpmyadmin
+    container_name: oriotel1-phpmyadmin
     restart: unless-stopped
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
       PMA_USER: root
-      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-oriotel_root}
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-oriotel1_root}
     ports:
-      - "${PMA_PORT:-8081}:80"
+      - "8091:80"
     networks:
-      - oriotel-network
+      - oriotel1-network
     depends_on:
       mysql:
         condition: service_healthy
@@ -119,12 +117,12 @@ services:
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
-    container_name: oriotel-api-gateway
+    container_name: oriotel1-api-gateway
     restart: unless-stopped
     ports:
-      - "${GATEWAY_PORT:-8080}:80"
+      - "8090:80"
     networks:
-      - oriotel-network
+      - oriotel1-network
     depends_on:
       - identity-nginx
       - operations-nginx
@@ -138,25 +136,25 @@ services:
 
   identity-php:
     <<: *php-service
-    container_name: oriotel-identity-php
+    container_name: oriotel1-identity-php
     volumes:
       - ./service-identity:/var/www/html
     environment:
       <<: *php-env
-      DB_DATABASE: oriotel_identity
-      APP_NAME: "Oriotel Identity"
+      DB_DATABASE: oriotel1_identity
+      APP_NAME: "Oriotel1 Identity"
       APP_KEY: ${IDENTITY_APP_KEY:-base64:YCyjgeuQI5pL7RczXa1TjrViI1kOvzcBtJCqSh59PCU=}
 
   identity-nginx:
     <<: *nginx-sidecar
-    container_name: oriotel-identity-nginx
+    container_name: oriotel1-identity-nginx
     environment:
       PHP_FPM_HOST: identity-php
     volumes:
       - ./service-identity:/var/www/html:ro
       - ./docker/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
     ports:
-      - "8082:80"
+      - "8092:80"
     depends_on:
       - identity-php
 
@@ -166,23 +164,72 @@ services:
 
   operations-php:
     <<: *php-service
-    container_name: oriotel-operations-php
+    container_name: oriotel1-operations-php
     volumes:
       - ./service-operations:/var/www/html
     environment:
       <<: *php-env
-      DB_DATABASE: oriotel_operations
-      APP_NAME: "Oriotel Operations"
+      DB_DATABASE: oriotel1_operations
+      APP_NAME: "Oriotel1 Operations"
       APP_KEY: ${OPERATIONS_APP_KEY:-base64:OpKeyPlaceholder1234567890ABCDEFGH=}
+      BROADCAST_CONNECTION: reverb
+      REVERB_APP_ID: ${REVERB_APP_ID:-oriotel1}
+      REVERB_APP_KEY: ${REVERB_APP_KEY:-oriotel1_reverb_key}
+      REVERB_APP_SECRET: ${REVERB_APP_SECRET:-oriotel1_reverb_secret}
+      REVERB_HOST: reverb
+      REVERB_PORT: 8080
+      REVERB_SCHEME: http
+      REVERB_BROADCAST_HOST: reverb
+
+  operations-scheduler:
+    <<: *php-service
+    container_name: oriotel1-operations-scheduler
+    volumes:
+      - ./service-operations:/var/www/html
+    environment:
+      <<: *php-env
+      DB_DATABASE: oriotel1_operations
+      APP_NAME: "Oriotel1 Operations Scheduler"
+      APP_KEY: ${OPERATIONS_APP_KEY:-base64:OpKeyPlaceholder1234567890ABCDEFGH=}
+    command: php artisan schedule:work
+    healthcheck:
+      test: ["CMD", "php", "artisan", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  operations-worker:
+    <<: *php-service
+    container_name: oriotel1-operations-worker
+    volumes:
+      - ./service-operations:/var/www/html
+    environment:
+      <<: *php-env
+      DB_DATABASE: oriotel1_operations
+      APP_NAME: "Oriotel1 Operations Worker"
+      APP_KEY: ${OPERATIONS_APP_KEY:-base64:OpKeyPlaceholder1234567890ABCDEFGH=}
+    command: php artisan queue:work
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   operations-nginx:
     <<: *nginx-sidecar
-    container_name: oriotel-operations-nginx
+    container_name: oriotel1-operations-nginx
     environment:
       PHP_FPM_HOST: operations-php
     volumes:
       - ./service-operations:/var/www/html:ro
       - ./docker/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+    ports:
+      - "8093:80"
     depends_on:
       - operations-php
 
@@ -192,25 +239,64 @@ services:
 
   communication-php:
     <<: *php-service
-    container_name: oriotel-communication-php
+    container_name: oriotel1-communication-php
     volumes:
       - ./service-communication:/var/www/html
     environment:
       <<: *php-env
-      DB_DATABASE: oriotel_communication
-      APP_NAME: "Oriotel Communication"
+      DB_DATABASE: oriotel1_communication
+      APP_NAME: "Oriotel1 Communication"
       APP_KEY: ${COMMUNICATION_APP_KEY:-base64:CommKeyPlaceholder1234567890ABCDE=}
+      BROADCAST_CONNECTION: reverb
+      REVERB_APP_ID: ${REVERB_APP_ID:-oriotel1}
+      REVERB_APP_KEY: ${REVERB_APP_KEY:-oriotel1_reverb_key}
+      REVERB_APP_SECRET: ${REVERB_APP_SECRET:-oriotel1_reverb_secret}
+      REVERB_HOST: ${REVERB_HOST:-reverb}
+      REVERB_PORT: ${REVERB_PORT:-8080}
+      REVERB_SCHEME: ${REVERB_SCHEME:-http}
+      REVERB_BROADCAST_HOST: reverb
 
   communication-nginx:
     <<: *nginx-sidecar
-    container_name: oriotel-communication-nginx
+    container_name: oriotel1-communication-nginx
     environment:
       PHP_FPM_HOST: communication-php
     volumes:
       - ./service-communication:/var/www/html:ro
       - ./docker/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+    ports:
+      - "8094:80"
     depends_on:
       - communication-php
+
+  # ===========================
+  #  LARAVEL REVERB
+  # ===========================
+
+  reverb:
+    <<: *php-service
+    container_name: oriotel1-reverb
+    volumes:
+      - ./service-communication:/var/www/html
+    ports:
+      - "8095:8080"
+    environment:
+      <<: *php-env
+      DB_DATABASE: oriotel1_communication
+      APP_NAME: "Oriotel1 Reverb"
+      APP_KEY: ${COMMUNICATION_APP_KEY:-base64:CommKeyPlaceholder1234567890ABCDE=}
+      REVERB_APP_ID: ${REVERB_APP_ID:-oriotel1}
+      REVERB_APP_KEY: ${REVERB_APP_KEY:-oriotel1_reverb_key}
+      REVERB_APP_SECRET: ${REVERB_APP_SECRET:-oriotel1_reverb_secret}
+      REVERB_HOST: 0.0.0.0
+      REVERB_PORT: 8080
+      REVERB_SCHEME: http
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   # ===========================
   #  SERVICE: SUBSCRIPTION
@@ -218,38 +304,40 @@ services:
 
   subscription-php:
     <<: *php-service
-    container_name: oriotel-subscription-php
+    container_name: oriotel1-subscription-php
     volumes:
       - ./service-subscription:/var/www/html
     environment:
       <<: *php-env
-      DB_DATABASE: oriotel_subscription
-      APP_NAME: "Oriotel Subscription"
+      DB_DATABASE: oriotel1_subscription
+      APP_NAME: "Oriotel1 Subscription"
       APP_KEY: ${SUBSCRIPTION_APP_KEY:-base64:SubKeyPlaceholder1234567890ABCDEF=}
 
   subscription-nginx:
     <<: *nginx-sidecar
-    container_name: oriotel-subscription-nginx
+    container_name: oriotel1-subscription-nginx
     environment:
       PHP_FPM_HOST: subscription-php
     volumes:
-      - ./service-subscription:/var/www/html:ro
+      - ./service-subscription:/var/www/html
       - ./docker/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+    ports:
+      - "8096:80"
     depends_on:
       - subscription-php
 
-# ===========================
-#  SERVICE: OCR (PaddleOCR)
-# ===========================
+  # ===========================
+  #  SERVICE: OCR
+  # ===========================
 
   ocr-python:
     build:
       context: ./service-ocr
       dockerfile: Dockerfile
-    container_name: oriotel-ocr-python
+    container_name: oriotel1-ocr-python
     restart: unless-stopped
     networks:
-      - oriotel-network
+      - oriotel1-network
     deploy:
       resources:
         limits:
@@ -261,14 +349,65 @@ services:
       start_period: 60s
       retries: 5
 
+  # ===========================
+  #  AI & VECTOR SEARCH
+  # ===========================
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: oriotel1-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - oriotel1-network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: oriotel1-ollama
+    restart: unless-stopped
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - oriotel1-network
+
+  ai-similarity-service:
+    build:
+      context: ./service-ai-similarity
+      dockerfile: Dockerfile
+    container_name: oriotel1-ai-similarity
+    restart: unless-stopped
+    volumes:
+      - ./service-ai-similarity:/app
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+      LLM_MODEL: phi3:mini
+    networks:
+      - oriotel1-network
+    depends_on:
+      - qdrant
+      - ollama
+
 # ===========================
 #  VOLUMES
 # ===========================
 
 volumes:
-  mysql-data:
+  mysql1-data:
     driver: local
-  redis-data:
+
+  redis1-data:
+    driver: local
+
+  qdrant-data:
+    driver: local
+
+  ollama-data:
     driver: local
 
 # ===========================
@@ -276,6 +415,6 @@ volumes:
 # ===========================
 
 networks:
-  oriotel-network:
+  oriotel1-network:
     driver: bridge
-    name: oriotel-network
+    name: oriotel1-network

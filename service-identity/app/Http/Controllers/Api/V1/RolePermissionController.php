@@ -178,12 +178,21 @@ class RolePermissionController extends Controller
             return response()->json(['success' => false, 'message' => 'Non authentifié'], 401);
         }
 
-        $roleSlug = \Illuminate\Support\Str::slug($user->role ?? '');
-        $role = \App\Models\Role::where('slug', $roleSlug)->first();
+        // On cherche le rôle soit par le slug exact, soit par le nom affiché (si différent)
+        $roleName = $user->role ?? '';
+        $role = \App\Models\Role::where('slug', \Illuminate\Support\Str::slug($roleName))
+            ->orWhere('name', $roleName)
+            ->first();
+            
         $roleId = $role ? $role->id : 0;
 
         return response()->json([
             'success'     => true,
+            'role_debug'  => [
+                'user_role_value' => $roleName,
+                'found_role_id'   => $roleId,
+                'found_role_name' => $role ? $role->name : 'none'
+            ],
             'permissions' => $this->service->getPermissionMatrix($roleId, [$user->id])
         ]);
     }

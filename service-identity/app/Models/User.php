@@ -182,17 +182,25 @@ class User extends Authenticatable
     {
         static::creating(function (User $user) {
             if (!$user->identifiant) {
-                $user->identifiant = self::generateIdentifiant();
+                $user->identifiant = self::generateIdentifiant($user->nom, $user->date_naissance);
             }
         });
     }
 
-    public static function generateIdentifiant(): string
+    public static function generateIdentifiant(string $nom, ?string $dateNaissance): string
     {
-        // Use withTrashed() to ensure we don't reuse an ID from a soft-deleted user
+        // Premier deux lettres du nom en minuscule
+        $prefix = strtolower(substr(str_replace(' ', '', $nom), 0, 2));
+        
+        // Numéro séquentiel (ex: 001)
         $lastUser = self::withTrashed()->orderBy('id', 'desc')->first();
         $nextId = $lastUser ? $lastUser->id + 1 : 1;
-        return 'USR' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+        $number = str_pad($nextId, 3, '0', STR_PAD_LEFT);
+        
+        // Année de naissance
+        $year = $dateNaissance ? date('Y', strtotime($dateNaissance)) : date('Y');
+
+        return "{$prefix}X{$number}@{$year}";
     }
 
     // ─── RBAC Relationships ──────────────────────────────────────────

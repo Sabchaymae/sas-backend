@@ -41,9 +41,9 @@ class UserController extends Controller
                 ActivityLog::TYPE_CREATION,
                 "Création d'utilisateur",
                 ActivityLog::MODULE_USERS,
-                "Nouvel utilisateur créé : {$user->full_name} ({$user->role})",
+                "Nouvel utilisateur créé : {$user->full_name} ({$user->role}). Identifiant: {$user->identifiant}",
                 null,
-                ['user_id' => $user->id, 'email' => $user->email]
+                ['user_id' => $user->id, 'email' => $user->email, 'identifiant' => $user->identifiant]
             );
 
             return (new UserResource($user))

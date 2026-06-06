@@ -40,8 +40,8 @@ class StoreUserRequest extends FormRequest
         return [
             'nom' => ['required', 'string', 'max:255'],
             'prenom' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', Password::defaults()],
+            'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['nullable', Password::defaults()],
             'telephone' => ['nullable', 'string', 'max:20'],
             'role' => ['required', 'string', 'max:100'],
             'statut' => ['nullable', 'string', 'in:active,inactive,pending'],

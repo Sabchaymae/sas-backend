@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -26,13 +27,13 @@ class Product extends Model
     {
         static::creating(function ($product) {
             if (empty($product->sku)) {
-                $product->sku = 'PRD-' . strtoupper(uniqid());
+                $product->sku = 'PRD-' . strtoupper(Str::random(8));
             }
             if (is_null($product->categorie)) {
-                $product->categorie = '';
+                $product->categorie = 'Non classé';
             }
             if (is_null($product->fournisseur)) {
-                $product->fournisseur = '';
+                $product->fournisseur = 'Inconnu';
             }
         });
     }

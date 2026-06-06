@@ -30,6 +30,7 @@ class UserResource extends JsonResource
             'avatar' => $this->avatar,
             'name' => $this->name,
             'identifiant' => $this->identifiant ?? ('USR-' . str_pad($this->id, 5, '0', STR_PAD_LEFT)),
+            'generated_password' => $this->when(isset($this->generated_password), $this->generated_password),
             'date_creation' => $this->created_at->format('d/m/Y H:i'),
         ];
     }
