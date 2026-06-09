@@ -24,7 +24,8 @@ class Conversation extends Model
 
     public function participants(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'conversation_participants')
+        $communicationDb = config('database.connections.mysql.database');
+        return $this->belongsToMany(User::class, "$communicationDb.conversation_participants")
             ->withPivot(['role', 'last_read_at'])
             ->withTimestamps();
     }

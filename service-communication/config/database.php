@@ -64,11 +64,11 @@ return [
 
         'identity' => [
             'driver' => 'mysql',
-            'host' => env('DB_HOST', '127.0.0.1'),
+            'host' => env('DB_HOST', 'mysql'),
             'port' => env('DB_PORT', '3306'),
-            'database' => 'oriotel_identity',
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
+            'database' => env('IDENTITY_DB_DATABASE', 'oriotel1_identity'),
+            'username' => env('DB_USERNAME', 'oriotel1'),
+            'password' => env('DB_PASSWORD', 'oriotel1_secret'),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',

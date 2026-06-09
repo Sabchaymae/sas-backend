@@ -1,4 +1,3 @@
-
 # ============================================
 # Oriotel1 ERP — Microservices Docker Compose
 # ============================================
@@ -270,7 +269,7 @@ services:
       - communication-php
 
   # ===========================
-  #  LARAVEL REVERB
+  #  LARAVEL REVERB (websocket)
   # ===========================
 
   reverb:

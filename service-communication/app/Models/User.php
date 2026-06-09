@@ -12,9 +12,10 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasApiTokens;
 
     /**
-     * Use the identity DB's users table directly since they share the same MySQL instance.
+     * Use the identity DB's users table via the identity connection.
      */
-    protected $table = 'oriotel_identity.users';
+    protected $connection = 'identity';
+    protected $table = 'oriotel1_identity.users';
 
     protected $fillable = [
         'nom',
@@ -45,7 +46,9 @@ class User extends Authenticatable
 
     public function conversations()
     {
-        return $this->belongsToMany(Conversation::class, 'conversation_participants')
+        // Explicitly point to the communication database for the pivot table
+        $communicationDb = config('database.connections.mysql.database');
+        return $this->belongsToMany(Conversation::class, "$communicationDb.conversation_participants")
             ->withPivot(['role', 'last_read_at'])
             ->withTimestamps();
     }
