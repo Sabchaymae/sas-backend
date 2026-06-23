@@ -1,0 +1,13 @@
+[
+  { "id": 1, "role_slug": "administrateur", "first_name": "Jean", "last_name": "Dupont", "email": "admin@oriotel.com", "avatar": "https://i.pravatar.cc/150?u=1", "status": "active" },
+  { "id": 2, "role_slug": "administrateur", "first_name": "Marie", "last_name": "Curie", "email": "marie.curie@oriotel.fr", "avatar": "https://i.pravatar.cc/150?u=2", "status": "active" },
+  { "id": 3, "role_slug": "administrateur", "first_name": "Thomas", "last_name": "Pesquet", "email": "t.pesquet@oriotel.fr", "avatar": "https://i.pravatar.cc/150?u=3", "status": "active" },
+  { "id": 4, "role_slug": "assistant", "first_name": "Alice", "last_name": "Martin", "email": "a.martin@oriotel.fr", "avatar": "https://i.pravatar.cc/150?u=4", "status": "active" },
+  { "id": 5, "role_slug": "assistant", "first_name": "Bob", "last_name": "Durand", "email": "b.durand@oriotel.fr", "avatar": "https://i.pravatar.cc/150?u=5", "status": "active" },
+  { "id": 6, "role_slug": "animateur", "first_name": "Charlie", "last_name": "West", "email": "animateur@oriotel.com", "avatar": "https://i.pravatar.cc/150?u=6", "status": "active" },
+  { "id": 7, "role_slug": "compteur", "first_name": "David", "last_name": "Smith", "email": "d.smith@oriotel.fr", "avatar": "https://i.pravatar.cc/150?u=7", "status": "active" },
+  { "id": 8, "role_slug": "superviseur", "first_name": "Elena", "last_name": "Gomez", "email": "e.gomez@oriotel.fr", "avatar": "https://i.pravatar.cc/150?u=8", "status": "active" },
+  { "id": 9, "role_slug": null, "first_name": "Lucas", "last_name": "Martin", "email": "l.martin@oriotel.fr", "avatar": "https://i.pravatar.cc/150?u=9", "status": "active" },
+  { "id": 10, "role_slug": null, "first_name": "Sophie", "last_name": "L.", "email": "sophie@oriotel.fr", "avatar": "https://i.pravatar.cc/150?u=10", "status": "active" },
+  { "id": 11, "role_slug": "assistant", "first_name": "Sarah", "last_name": "Assistant", "email": "assistante@oriotel.com", "avatar": "https://i.pravatar.cc/150?u=11", "status": "active" }
+]
