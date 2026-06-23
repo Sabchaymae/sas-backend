@@ -12,6 +12,10 @@ use App\Notifications\GroupInvitationNotification;
 use App\Notifications\NewMessageNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+<<<<<<< HEAD
+=======
+use Illuminate\Support\Facades\Log;
+>>>>>>> import/master
 
 class GroupController extends Controller
 {
@@ -52,7 +56,11 @@ class GroupController extends Controller
                     try {
                         $invitedUser->notify(new GroupInvitationNotification($invitation));
                     } catch (\Exception $e) {
+<<<<<<< HEAD
                         \Log::error('Notification error: ' . $e->getMessage());
+=======
+                        Log::error('Notification error: ' . $e->getMessage());
+>>>>>>> import/master
                     }
                 }
             }

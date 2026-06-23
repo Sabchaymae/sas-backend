@@ -21,10 +21,14 @@ class AuthService
      */
     public function attemptLogin(string $login, string $password, ?string $ip = null): array
     {
+<<<<<<< HEAD
         $user = User::where('email', $login)
             ->orWhere('identifiant', $login)
             ->orWhere('cin', $login)
             ->first();
+=======
+        $user = User::where('email', $login)->orWhere('cin', $login)->first();
+>>>>>>> import/master
 
         if (!$user) {
             return $this->fail('invalid_credentials', 'Email ou mot de passe incorrect.');

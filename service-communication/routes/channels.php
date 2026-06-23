@@ -27,3 +27,11 @@ Broadcast::channel('conversation.{id}', function ($user, $id) {
     }
     return false;
 }, ['guards' => ['sanctum']]);
+<<<<<<< HEAD
+=======
+
+// Public channel — any authenticated user can subscribe
+Broadcast::channel('announcements', function ($user) {
+    return ['id' => $user->id, 'name' => $user->name];
+}, ['guards' => ['sanctum']]);
+>>>>>>> import/master

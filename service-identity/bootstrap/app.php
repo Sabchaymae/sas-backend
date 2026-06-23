@@ -18,10 +18,16 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Named middleware aliases
         $middleware->alias([
+<<<<<<< HEAD
             'active'     => \App\Http\Middleware\EnsureAccountIsActive::class,
             'ability'    => \App\Http\Middleware\CheckTokenAbility::class,
             'admin'      => \App\Http\Middleware\AdminMiddleware::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
+=======
+            'active'  => \App\Http\Middleware\EnsureAccountIsActive::class,
+            'ability' => \App\Http\Middleware\CheckTokenAbility::class,
+            'admin'   => \App\Http\Middleware\AdminMiddleware::class,
+>>>>>>> import/master
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

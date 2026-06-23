@@ -4,7 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "content-hash": "b92f4809de28dcee58ad55906861e12d",
+=======
+    "content-hash": "626b9e7ddd47fb7eff9aaa53cce0c9ad",
+>>>>>>> import/master
     "packages": [
         {
             "name": "brick/math",
@@ -136,6 +140,7 @@
             "time": "2024-02-09T16:56:22+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "clue/redis-protocol",
             "version": "v0.3.2",
             "source": {
@@ -266,6 +271,8 @@
             "time": "2025-01-03T16:18:33+00:00"
         },
         {
+=======
+>>>>>>> import/master
             "name": "dflydev/dot-access-data",
             "version": "v3.0.3",
             "source": {
@@ -639,6 +646,7 @@
             "time": "2025-03-06T22:45:56+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "evenement/evenement",
             "version": "v3.0.2",
             "source": {
@@ -686,6 +694,8 @@
             "time": "2023-08-08T05:53:35+00:00"
         },
         {
+=======
+>>>>>>> import/master
             "name": "fruitcake/php-cors",
             "version": "v1.4.0",
             "source": {
@@ -1505,6 +1515,7 @@
             "time": "2026-04-20T16:07:33+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "laravel/reverb",
             "version": "v1.10.2",
             "source": {
@@ -1647,6 +1658,8 @@
             "time": "2026-04-30T11:46:25+00:00"
         },
         {
+=======
+>>>>>>> import/master
             "name": "laravel/serializable-closure",
             "version": "v2.0.13",
             "source": {
@@ -2919,6 +2932,7 @@
             "time": "2025-12-27T19:41:33+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "promphp/prometheus_client_php",
             "version": "v2.15.1",
             "source": {
@@ -2989,6 +3003,8 @@
             "time": "2026-05-28T07:51:04+00:00"
         },
         {
+=======
+>>>>>>> import/master
             "name": "psr/clock",
             "version": "1.0.0",
             "source": {
@@ -3480,6 +3496,7 @@
             "time": "2026-03-22T23:03:24+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "pusher/pusher-php-server",
             "version": "7.2.8",
             "source": {
@@ -3540,6 +3557,8 @@
             "time": "2026-05-18T13:11:36+00:00"
         },
         {
+=======
+>>>>>>> import/master
             "name": "ralouphie/getallheaders",
             "version": "3.0.3",
             "source": {
@@ -3738,6 +3757,7 @@
             "time": "2025-12-14T04:43:48+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "ratchet/rfc6455",
             "version": "v0.4.0",
             "source": {
@@ -4465,6 +4485,8 @@
             "time": "2024-08-28T16:04:54+00:00"
         },
         {
+=======
+>>>>>>> import/master
             "name": "symfony/clock",
             "version": "v7.4.8",
             "source": {

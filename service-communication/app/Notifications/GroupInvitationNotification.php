@@ -51,6 +51,17 @@ class GroupInvitationNotification extends Notification implements ShouldBroadcas
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Override the broadcast event name so the frontend receives a clean type.
+     */
+    public function broadcastType(): string
+    {
+        return 'group_invitation';
+    }
+
+    /**
+>>>>>>> import/master
      * Get the array representation of the notification.
      *
      * @return array<string, mixed>

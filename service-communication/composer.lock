@@ -4,7 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "content-hash": "b92f4809de28dcee58ad55906861e12d",
+=======
+    "content-hash": "240ad9144f5d517b28ed77dd4dcac6af",
+>>>>>>> import/master
     "packages": [
         {
             "name": "brick/math",
@@ -3015,6 +3019,7 @@
             "time": "2025-12-27T19:41:33+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "promphp/prometheus_client_php",
             "version": "v2.15.1",
             "source": {
@@ -3085,6 +3090,8 @@
             "time": "2026-05-28T07:51:04+00:00"
         },
         {
+=======
+>>>>>>> import/master
             "name": "psr/clock",
             "version": "1.0.0",
             "source": {
@@ -4424,6 +4431,7 @@
             "time": "2024-06-11T12:45:25+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "spatie/laravel-package-tools",
             "version": "1.93.1",
             "source": {
@@ -4562,6 +4570,8 @@
             "time": "2024-08-28T16:04:54+00:00"
         },
         {
+=======
+>>>>>>> import/master
             "name": "symfony/clock",
             "version": "v7.4.8",
             "source": {

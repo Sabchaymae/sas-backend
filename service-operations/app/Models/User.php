@@ -6,11 +6,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+<<<<<<< HEAD
 use Laravel\Sanctum\HasApiTokens;
+=======
+>>>>>>> import/master
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
+<<<<<<< HEAD
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
@@ -18,6 +22,9 @@ class User extends Authenticatable
      */
     protected $connection = 'identity';
     protected $table = 'oriotel1_identity.users';
+=======
+    use HasFactory, Notifiable;
+>>>>>>> import/master
 
     /**
      * The attributes that are mass assignable.
@@ -28,6 +35,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+<<<<<<< HEAD
         'role',
         'identifiant',
         'nom',
@@ -44,6 +52,8 @@ class User extends Authenticatable
         'avg_task_completion_time',
         'tasks_completed_per_day',
         'delay_rate'
+=======
+>>>>>>> import/master
     ];
 
     /**
@@ -57,6 +67,7 @@ class User extends Authenticatable
     ];
 
     /**
+<<<<<<< HEAD
      * Calculer le score de charge
      */
     public function getWorkloadScoreAttribute() {
@@ -171,6 +182,8 @@ class User extends Authenticatable
     }
 
     /**
+=======
+>>>>>>> import/master
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -180,6 +193,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+<<<<<<< HEAD
             'date_naissance' => 'date',
             'daily_capacity' => 'decimal:2',
             'avg_task_completion_time' => 'decimal:2',
@@ -188,3 +202,8 @@ class User extends Authenticatable
         ];
     }
 }
+=======
+        ];
+    }
+}
+>>>>>>> import/master

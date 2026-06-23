@@ -20,6 +20,10 @@ docker compose up -d
 ```
 *Note : Si vous rencontrez une erreur "EOF" ou de connexion, redémarrez Docker Desktop et faites `docker system prune -f`.*
 
+<<<<<<< HEAD
+=======
+rm -rf vendor composer.lock
+>>>>>>> import/master
 
 cd service-identity
 rm -rf vendor composer.lock

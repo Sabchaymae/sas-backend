@@ -23,10 +23,30 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
+<<<<<<< HEAD
     public function index(\Illuminate\Http\Request $request): AnonymousResourceCollection
     {
         $users = $this->userService->getAllUsers($request->all());
         return UserResource::collection($users);
+=======
+    public function index(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        $users = $this->userService->getAllUsers($request->all());
+        
+        if ($users instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+            return response()->json([
+                'data' => UserResource::collection($users),
+                'meta' => [
+                    'total' => $users->total(),
+                    'per_page' => $users->perPage(),
+                    'current_page' => $users->currentPage(),
+                    'last_page' => $users->lastPage(),
+                ]
+            ]);
+        }
+        
+        return response()->json(UserResource::collection($users));
+>>>>>>> import/master
     }
 
     public function store(StoreUserRequest $request): JsonResponse
@@ -34,13 +54,20 @@ class UserController extends Controller
         Log::info('User Creation Attempt', $request->validated());
         
         try {
+<<<<<<< HEAD
             $user = $this->userService->createUser($request->validated());
+=======
+            $result = $this->userService->createUser($request->validated());
+            $user = $result['user'];
+            $credentials = $result['credentials'];
+>>>>>>> import/master
             Log::info('User Created Successfully', ['id' => $user->id]);
             
             ActivityLogService::log(
                 ActivityLog::TYPE_CREATION,
                 "Création d'utilisateur",
                 ActivityLog::MODULE_USERS,
+<<<<<<< HEAD
                 "Nouvel utilisateur créé : {$user->full_name} ({$user->role}). Identifiant: {$user->identifiant}",
                 null,
                 ['user_id' => $user->id, 'email' => $user->email, 'identifiant' => $user->identifiant]
@@ -49,6 +76,17 @@ class UserController extends Controller
             return (new UserResource($user))
                 ->response()
                 ->setStatusCode(201);
+=======
+                "Nouvel utilisateur créé : {$user->full_name} ({$user->role})",
+                null,
+                ['user_id' => $user->id, 'identifiant' => $user->identifiant]
+            );
+
+            return response()->json([
+                'data' => new UserResource($user),
+                'credentials' => $credentials
+            ], 201);
+>>>>>>> import/master
         } catch (\Illuminate\Database\QueryException $e) {
             if ($e->errorInfo[1] == 1062) {
                 return response()->json(['message' => 'Une donnée unique (email, téléphone ou identifiant) est déjà utilisée.'], 422);

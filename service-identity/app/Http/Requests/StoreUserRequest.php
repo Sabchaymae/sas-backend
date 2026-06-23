@@ -40,14 +40,24 @@ class StoreUserRequest extends FormRequest
         return [
             'nom' => ['required', 'string', 'max:255'],
             'prenom' => ['required', 'string', 'max:255'],
+<<<<<<< HEAD
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['nullable', Password::defaults()],
             'telephone' => ['nullable', 'string', 'max:20'],
+=======
+            'telephone' => ['nullable', 'string', 'max:20', 'unique:users,telephone'],
+            'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email'],
+            'identifiant' => ['nullable', 'string', 'max:255', 'unique:users,identifiant'],
+>>>>>>> import/master
             'role' => ['required', 'string', 'max:100'],
             'statut' => ['nullable', 'string', 'in:active,inactive,pending'],
             'cin' => ['nullable', 'string', 'max:20'],
             'adresse' => ['nullable', 'string', 'max:500'],
+<<<<<<< HEAD
             'date_naissance' => ['nullable', 'date'],
+=======
+            'date_naissance' => ['nullable', 'date', 'before:-18 years'],
+>>>>>>> import/master
             'photo' => ['nullable', 'image', 'mimes:jpeg,jpg,png,gif,webp,bmp,svg,tiff,tif,ico,heic,heif,avif', 'max:10240'],
         ];
     }

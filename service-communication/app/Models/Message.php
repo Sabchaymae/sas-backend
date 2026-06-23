@@ -17,10 +17,19 @@ class Message extends Model
         'content',
         'type',
         'is_edited',
+<<<<<<< HEAD
     ];
 
     protected $casts = [
         'is_edited' => 'boolean',
+=======
+        'is_deleted',
+    ];
+
+    protected $casts = [
+        'is_edited'  => 'boolean',
+        'is_deleted' => 'boolean',
+>>>>>>> import/master
     ];
 
     public function conversation(): BelongsTo
@@ -38,6 +47,14 @@ class Message extends Model
         return $this->hasMany(MessageAttachment::class);
     }
 
+<<<<<<< HEAD
+=======
+    public function reactions(): HasMany
+    {
+        return $this->hasMany(MessageReaction::class);
+    }
+
+>>>>>>> import/master
     public function isSystem(): bool
     {
         return $this->type === 'system';

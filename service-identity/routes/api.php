@@ -5,8 +5,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\PasswordResetController;
 use App\Http\Controllers\Api\V1\ActivityLogController;
+<<<<<<< HEAD
 use App\Http\Controllers\Api\V1\UserController;use App\Http\Controllers\Api\V1\RolePermissionController;
 use App\Http\Controllers\Api\V1\DashboardController;
+=======
+use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\RolePermissionController;
+>>>>>>> import/master
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +32,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
     });
 
+<<<<<<< HEAD
     // ─── User Management (Protected by Permission Middleware) ─────────
     Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::get('users', [UserController::class, 'index'])->middleware('permission:Utilisateurs,Lecture');
@@ -35,6 +41,10 @@ Route::prefix('v1')->group(function () {
         Route::match(['put', 'patch'], 'users/{user}', [UserController::class, 'update'])->middleware('permission:Utilisateurs,Modification');
         Route::delete('users/{user}', [UserController::class, 'destroy'])->middleware('permission:Utilisateurs,Suppression');
     });
+=======
+    // ─── User Management (Public for Dev) ─────────────────────────────
+    Route::apiResource('users', UserController::class);
+>>>>>>> import/master
 
     // ─── Activity History (Public for Dev) ───────────────────────────
     Route::prefix('history')->group(function () {
@@ -88,7 +98,10 @@ Route::prefix('v1')->group(function () {
         Route::post('/permissions/sync', [RolePermissionController::class, 'syncPermissions']);
         Route::get('/roles/{role}/users', [RolePermissionController::class, 'getRoleUsers']);
         Route::get('/permissions', [RolePermissionController::class, 'getPermissions']);
+<<<<<<< HEAD
         Route::get('/my-permissions', [RolePermissionController::class, 'myPermissions'])->middleware('auth:sanctum');
+=======
+>>>>>>> import/master
 
 
         // Temporary helper for dev
@@ -103,6 +116,7 @@ Route::prefix('v1')->group(function () {
             'time' => now()->toIso8601String(),
         ]);
     });
+<<<<<<< HEAD
 
     // ─── Dashboard Routes ────────────────────────────────────────────
     Route::prefix('dashboard')->middleware('auth:sanctum')->group(function () {
@@ -114,5 +128,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/charts', [DashboardController::class, 'getCharts']);
         Route::get('/system-health', [DashboardController::class, 'getSystemHealth']);
     });
+=======
+>>>>>>> import/master
 });
 

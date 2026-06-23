@@ -13,7 +13,11 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+<<<<<<< HEAD
         if ($request->user() && $request->user()->isAdmin()) {
+=======
+        if ($request->user() && $request->user()->role === 'admin') {
+>>>>>>> import/master
             return $next($request);
         }
 

@@ -41,7 +41,12 @@ class UpdateUserRequest extends FormRequest
             'prenom' => ['sometimes', 'required', 'string', 'max:255'],
             'email' => ['sometimes', 'required', 'string', 'email', 'max:255', 'unique:users,email,' . $userId],
             'password' => ['sometimes', 'nullable', Password::defaults()],
+<<<<<<< HEAD
             'telephone' => ['nullable', 'string', 'max:20'],
+=======
+            'telephone' => ['nullable', 'string', 'max:20', 'unique:users,telephone,' . $userId],
+            'identifiant' => ['nullable', 'string', 'max:255', 'unique:users,identifiant,' . $userId],
+>>>>>>> import/master
             'role' => ['sometimes', 'required', 'string', 'max:100'],
             'statut' => ['sometimes', 'nullable', new Enum(UserStatus::class)],
             'cin' => ['nullable', 'string', 'max:20'],

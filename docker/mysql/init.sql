@@ -3,6 +3,7 @@
 -- One database per microservice (isolation)
 -- ============================================
 
+<<<<<<< HEAD
 CREATE DATABASE IF NOT EXISTS `oriotel1_identity`
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -20,5 +21,24 @@ GRANT ALL PRIVILEGES ON `oriotel1_identity`.*       TO 'oriotel1'@'%';
 GRANT ALL PRIVILEGES ON `oriotel1_operations`.*     TO 'oriotel1'@'%';
 GRANT ALL PRIVILEGES ON `oriotel1_communication`.*  TO 'oriotel1'@'%';
 GRANT ALL PRIVILEGES ON `oriotel1_subscription`.*   TO 'oriotel1'@'%';
+=======
+CREATE DATABASE IF NOT EXISTS `oriotel_identity`
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE DATABASE IF NOT EXISTS `oriotel_operations`
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE DATABASE IF NOT EXISTS `oriotel_communication`
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE DATABASE IF NOT EXISTS `oriotel_subscription`
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Grant privileges to the application user
+GRANT ALL PRIVILEGES ON `oriotel_identity`.*       TO 'oriotel'@'%';
+GRANT ALL PRIVILEGES ON `oriotel_operations`.*     TO 'oriotel'@'%';
+GRANT ALL PRIVILEGES ON `oriotel_communication`.*  TO 'oriotel'@'%';
+GRANT ALL PRIVILEGES ON `oriotel_subscription`.*   TO 'oriotel'@'%';
+>>>>>>> import/master
 
 FLUSH PRIVILEGES;

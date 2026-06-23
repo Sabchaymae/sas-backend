@@ -169,6 +169,7 @@ class RolePermissionController extends Controller
     }
 
     /**
+<<<<<<< HEAD
      * Get permission matrix for the currently authenticated user.
      */
     public function myPermissions(Request $request): JsonResponse
@@ -198,6 +199,8 @@ class RolePermissionController extends Controller
     }
 
     /**
+=======
+>>>>>>> import/master
      * Save permissions for a target.
      */
     public function syncPermissions(Request $request): JsonResponse

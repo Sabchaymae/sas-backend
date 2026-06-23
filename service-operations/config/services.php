@@ -35,8 +35,11 @@ return [
         ],
     ],
 
+<<<<<<< HEAD
     'ai_similarity' => [
         'url' => env('AI_SIMILARITY_URL', 'http://ai-similarity-service:8000'),
     ],
 
+=======
+>>>>>>> import/master
 ];

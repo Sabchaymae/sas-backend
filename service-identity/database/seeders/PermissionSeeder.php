@@ -12,7 +12,11 @@ class PermissionSeeder extends Seeder
     {
         $modules = [
             'Utilisateurs', 'Souscriptions', 'Stock', 'Comptabilité', 
+<<<<<<< HEAD
             'Tâches', 'Incidents', 'Temps', 'Agences', 'Communication', 'Autorisation'
+=======
+            'Tâches', 'Temps', 'Agences', 'Communication', 'Autorisation'
+>>>>>>> import/master
         ];
 
         $actions = [

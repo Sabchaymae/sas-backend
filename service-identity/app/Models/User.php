@@ -138,8 +138,12 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
+<<<<<<< HEAD
         $role = strtolower($this->role ?? '');
         return $role === self::ROLE_ADMIN || $role === 'admin';
+=======
+        return strtolower($this->role) === self::ROLE_ADMIN;
+>>>>>>> import/master
     }
 
     public function isActive(): bool
@@ -182,11 +186,16 @@ class User extends Authenticatable
     {
         static::creating(function (User $user) {
             if (!$user->identifiant) {
+<<<<<<< HEAD
                 $user->identifiant = self::generateIdentifiant($user->nom, $user->date_naissance);
+=======
+                $user->identifiant = self::generateIdentifiant($user->prenom, $user->date_naissance);
+>>>>>>> import/master
             }
         });
     }
 
+<<<<<<< HEAD
     public static function generateIdentifiant(string $nom, ?string $dateNaissance): string
     {
         // Premier deux lettres du nom en minuscule
@@ -201,6 +210,40 @@ class User extends Authenticatable
         $year = $dateNaissance ? date('Y', strtotime($dateNaissance)) : date('Y');
 
         return "{$prefix}X{$number}@{$year}";
+=======
+    public static function generateIdentifiant(string $prenom, ?string $dateNaissance = null): string
+    {
+        $name = strtolower(preg_replace('/\s+/', '', $prenom));
+        
+        $birthYear = $dateNaissance ? \Illuminate\Support\Carbon::parse($dateNaissance)->year : now()->year;
+        
+        $pattern = '/^.+X(\d+)@.+$/';
+        
+        $lastUser = self::withTrashed()
+            ->where('identifiant', 'LIKE', '%X%@%')
+            ->orderByRaw('CAST(SUBSTRING(identifiant, LOCATE("X", identifiant) + 1, LOCATE("@", identifiant) - LOCATE("X", identifiant) - 1) AS UNSIGNED) DESC')
+            ->first();
+        
+        $nextNumber = 1;
+        if ($lastUser && preg_match($pattern, $lastUser->identifiant, $matches)) {
+            $nextNumber = (int)$matches[1] + 1;
+        }
+        
+        $numberPart = str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        
+        return $name . 'X' . $numberPart . '@' . $birthYear;
+    }
+
+    public static function generateTemporaryPassword(): string
+    {
+        $length = rand(8, 12);
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $password = '';
+        for ($i = 0; $i < $length; $i++) {
+            $password .= $chars[rand(0, strlen($chars) - 1)];
+        }
+        return $password;
+>>>>>>> import/master
     }
 
     // ─── RBAC Relationships ──────────────────────────────────────────
@@ -217,6 +260,7 @@ class User extends Authenticatable
 
     public function hasPermission(string $permissionSlug): bool
     {
+<<<<<<< HEAD
         // 1. Individual overrides
         if ($this->permissions()->where('slug', $permissionSlug)->exists()) {
             return true;
@@ -267,5 +311,60 @@ class User extends Authenticatable
         }
 
         return false;
+=======
+        if ($this->permissions()->where('slug', $permissionSlug)->exists()) {
+            return true;
+        }
+        return $this->roles()->whereHas('permissions', function ($query) use ($permissionSlug) {
+            $query->where('slug', $permissionSlug);
+        })->exists();
+    }
+
+    public function getNameAttribute(): string
+    {
+        return "{$this->prenom} {$this->nom}";
+    }
+
+    protected $appends = ['name', 'full_name', 'status', 'first_name', 'last_name'];
+
+    public function scopeSearch($query, ?string $term): \Illuminate\Database\Eloquent\Builder
+    {
+        if (!$term) {
+            return $query;
+        }
+        return $query->where(function ($q) use ($term) {
+            $q->where('nom', 'like', "%{$term}%")
+              ->orWhere('prenom', 'like', "%{$term}%")
+              ->orWhere('email', 'like', "%{$term}%")
+              ->orWhere('phone', 'like', "%{$term}%")
+              ->orWhere('cin', 'like', "%{$term}%")
+              ->orWhere('identifiant', 'like', "%{$term}%");
+        });
+    }
+
+    public function scopeOfRole($query, ?string $role): \Illuminate\Database\Eloquent\Builder
+    {
+        return $role ? $query->where('role', $role) : $query;
+    }
+
+    public function scopeOfStatus($query, ?string $statut): \Illuminate\Database\Eloquent\Builder
+    {
+        return $statut ? $query->where('statut', $statut) : $query;
+    }
+
+    public function scopeOfRoleType($query, ?string $roleType): \Illuminate\Database\Eloquent\Builder
+    {
+        return $roleType ? $query->where('role_type', $roleType) : $query;
+    }
+
+    public function scopeFromDate($query, ?string $date): \Illuminate\Database\Eloquent\Builder
+    {
+        return $date ? $query->whereDate('created_at', '>=', $date) : $query;
+    }
+
+    public function scopeToDate($query, ?string $date): \Illuminate\Database\Eloquent\Builder
+    {
+        return $date ? $query->whereDate('created_at', '<=', $date) : $query;
+>>>>>>> import/master
     }
 }

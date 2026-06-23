@@ -16,11 +16,14 @@ class RolePermissionService
      */
     public function getAllRoles(): Collection
     {
+<<<<<<< HEAD
         // 0. Ensure default roles and permissions exist
         if (Role::count() < 5 || Permission::count() === 0) {
             $this->seedDefaults();
         }
 
+=======
+>>>>>>> import/master
         // 1. Sync: find all unique role values from users table and ensure they exist in roles table
         $userRoles = User::whereNotNull('role')
             ->where('role', '!=', '')
@@ -129,10 +132,13 @@ class RolePermissionService
      */
     public function getPermissionMatrix(int $roleId, array $userIds = []): array
     {
+<<<<<<< HEAD
         if (Permission::count() === 0) {
             $this->seedDefaults();
         }
 
+=======
+>>>>>>> import/master
         $allPermissions = Permission::all();
         
         $currentPermissions = collect();
@@ -176,10 +182,13 @@ class RolePermissionService
      */
     public function syncPermissions(int $roleId, array $userIds, array $permissionMatrix): bool
     {
+<<<<<<< HEAD
         if (Permission::count() === 0) {
             $this->seedDefaults();
         }
 
+=======
+>>>>>>> import/master
         // 1. Flatten the matrix to get active slugs
         $activeSlugs = [];
         foreach ($permissionMatrix as $module => $actions) {
@@ -230,7 +239,11 @@ class RolePermissionService
         }
 
         // Default Modules and Actions (from PermissionMatrix.jsx)
+<<<<<<< HEAD
         $modules = ['Utilisateurs', 'Souscriptions', 'Stock', 'Comptabilité', 'Tâches', 'Incidents', 'Temps', 'Agences', 'Communication', 'Autorisation'];
+=======
+        $modules = ['Utilisateurs', 'Souscriptions', 'Stock', 'Comptabilité', 'Tâches', 'Temps', 'Agences', 'Communication', 'Autorisation'];
+>>>>>>> import/master
         $actions = ['Lecture', 'Création', 'Modification', 'Suppression', 'Validation', 'Export'];
 
         foreach ($modules as $m) {
@@ -243,6 +256,7 @@ class RolePermissionService
                 ]);
             }
         }
+<<<<<<< HEAD
 
         // Assign all permissions to Administrateur
         $admin = Role::where('slug', 'administrateur')->first();
@@ -258,5 +272,7 @@ class RolePermissionService
                 ->pluck('id');
             $assistant->permissions()->sync($assistantPermissions);
         }
+=======
+>>>>>>> import/master
     }
 }

@@ -19,11 +19,27 @@ class MessageController extends Controller
     {
         $user = Auth::user();
         $conversation = Conversation::whereHas('participantData', function($query) use ($user) {
+<<<<<<< HEAD
             $query->where('user_id', $user->id); // Allow all statuses to read messages
         })->findOrFail($conversationId);
 
         $messages = $conversation->messages()
             ->with(['attachments', 'user'])
+=======
+            $query->where('user_id', $user->id);
+        })->findOrFail($conversationId);
+
+        // Si l'utilisateur a supprimé cette conversation, ne montrer que
+        // les messages postérieurs à la date de suppression (horizon).
+        $deletionHorizon = \App\Models\DeletedConversation::where('conversation_id', $conversationId)
+            ->where('user_id', $user->id)
+            ->value('deleted_at');
+
+        $messages = $conversation->messages()
+            ->withTrashed()
+            ->with(['attachments', 'user', 'reactions.user'])
+            ->when($deletionHorizon, fn($q) => $q->where('created_at', '>', $deletionHorizon))
+>>>>>>> import/master
             ->latest()
             ->paginate(50);
 
@@ -85,7 +101,19 @@ class MessageController extends Controller
                 ->where('user_id', $user->id)
                 ->update(['last_read_at' => now()]);
 
+<<<<<<< HEAD
             $finalMessage = $message->load(['attachments', 'user']);
+=======
+            // Si un participant avait soft-supprimé cette conversation,
+            // on la marque is_hidden=false pour qu'elle réapparaisse avec
+            // uniquement les nouveaux messages (l'horizon deleted_at est conservé).
+            \App\Models\DeletedConversation::where('conversation_id', $conversation->id)
+                ->where('user_id', '!=', $user->id)
+                ->where('is_hidden', true)
+                ->update(['is_hidden' => false]);
+
+            $finalMessage = $message->load(['attachments', 'user', 'reactions.user']);
+>>>>>>> import/master
             
             // Dispatch instant real-time notifications to all other participants
             $otherParticipants = $conversation->participants()->where('users.id', '!=', $user->id)->get();
@@ -184,7 +212,11 @@ class MessageController extends Controller
                 }
             }
 
+<<<<<<< HEAD
             $finalMessage = $message->load(['attachments', 'user']);
+=======
+            $finalMessage = $message->load(['attachments', 'user', 'reactions.user']);
+>>>>>>> import/master
 
             try {
                 Log::info('📤 BROADCASTING MessageUpdated', [
@@ -205,12 +237,18 @@ class MessageController extends Controller
     {
         $user = Auth::user();
 
+<<<<<<< HEAD
         // Verify user is active participant
+=======
+>>>>>>> import/master
         $conversation = Conversation::whereHas('participantData', function($query) use ($user) {
             $query->where('user_id', $user->id)->where('status', 'active');
         })->findOrFail($conversationId);
 
+<<<<<<< HEAD
         // Find the message
+=======
+>>>>>>> import/master
         $message = Message::where('conversation_id', $conversationId)
             ->where('user_id', $user->id)
             ->findOrFail($messageId);
@@ -220,12 +258,17 @@ class MessageController extends Controller
         }
 
         DB::transaction(function() use ($message) {
+<<<<<<< HEAD
             // Delete attachments
+=======
+            // Supprimer les fichiers du storage
+>>>>>>> import/master
             foreach ($message->attachments as $attachment) {
                 Storage::disk('public')->delete($attachment->file_path);
                 $attachment->delete();
             }
 
+<<<<<<< HEAD
             // Soft delete the message
             $message->delete();
 
@@ -238,11 +281,40 @@ class MessageController extends Controller
                     'channel' => 'chat.' . $finalMessage->conversation_id
                 ]);
                 broadcast(new \App\Events\MessageDeleted($finalMessage))->toOthers();
+=======
+            // Vider le contenu et marquer comme supprimé AVANT le soft-delete
+            // pour que le broadcast porte les bonnes données
+            $message->content = null;
+            $message->is_deleted = true;
+            $message->save();
+
+            // Soft delete
+            $message->delete();
+
+            // Recharger pour le broadcast (deleted_at sera présent)
+            $message->refresh();
+            $deletedMessage = $message->load(['user']);
+
+            try {
+                Log::info('📤 BROADCASTING MessageDeleted', [
+                    'message_id' => $deletedMessage->id,
+                    'conversation_id' => $deletedMessage->conversation_id,
+                ]);
+                broadcast(new \App\Events\MessageDeleted($deletedMessage))->toOthers();
+>>>>>>> import/master
             } catch (\Exception $e) {
                 Log::error('❌ MessageDeleted broadcast FAILED', ['error' => $e->getMessage()]);
             }
         });
 
+<<<<<<< HEAD
         return response()->json(['success' => true, 'message' => 'Message supprimé avec succès']);
+=======
+        return response()->json([
+            'success' => true,
+            'message_id' => $messageId,
+            'is_deleted' => true,
+        ]);
+>>>>>>> import/master
     }
 }

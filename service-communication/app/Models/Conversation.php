@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+<<<<<<< HEAD
+=======
+use App\Models\DeletedConversation;
+>>>>>>> import/master
 
 class Conversation extends Model
 {
@@ -24,9 +28,14 @@ class Conversation extends Model
 
     public function participants(): BelongsToMany
     {
+<<<<<<< HEAD
         $communicationDb = config('database.connections.mysql.database');
         return $this->belongsToMany(User::class, "$communicationDb.conversation_participants")
             ->withPivot(['role', 'last_read_at'])
+=======
+        return $this->belongsToMany(User::class, 'conversation_participants')
+            ->withPivot(['role', 'status', 'last_read_at'])
+>>>>>>> import/master
             ->withTimestamps();
     }
 
@@ -50,6 +59,14 @@ class Conversation extends Model
         return $this->hasMany(ArchivedConversation::class);
     }
 
+<<<<<<< HEAD
+=======
+    public function deletions(): HasMany
+    {
+        return $this->hasMany(DeletedConversation::class);
+    }
+
+>>>>>>> import/master
     public function isGroup(): bool
     {
         return $this->type === 'group';
