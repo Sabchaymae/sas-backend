@@ -12,7 +12,7 @@ class PermissionSeeder extends Seeder
     {
         $modules = [
             'Utilisateurs', 'Souscriptions', 'Stock', 'Comptabilité', 
-            'Tâches', 'Temps', 'Agences', 'Communication', 'Autorisation'
+            'Tâches', 'Incidents', 'Temps', 'Agences', 'Communication', 'Autorisation'
         ];
 
         $actions = [

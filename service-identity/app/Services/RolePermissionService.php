@@ -230,7 +230,7 @@ class RolePermissionService
         }
 
         // Default Modules and Actions (from PermissionMatrix.jsx)
-        $modules = ['Utilisateurs', 'Souscriptions', 'Stock', 'Comptabilité', 'Tâches', 'Temps', 'Agences', 'Communication', 'Autorisation'];
+        $modules = ['Utilisateurs', 'Souscriptions', 'Stock', 'Comptabilité', 'Tâches', 'Incidents', 'Temps', 'Agences', 'Communication', 'Autorisation'];
         $actions = ['Lecture', 'Création', 'Modification', 'Suppression', 'Validation', 'Export'];
 
         foreach ($modules as $m) {
@@ -248,6 +248,15 @@ class RolePermissionService
         $admin = Role::where('slug', 'administrateur')->first();
         if ($admin) {
             $admin->permissions()->sync(Permission::pluck('id'));
+        }
+
+        // Assign default permissions to Assistant (Incidents: Lecture)
+        $assistant = Role::where('slug', 'assistant')->first();
+        if ($assistant) {
+            $assistantPermissions = Permission::where('module', 'Incidents')
+                ->where('action', 'Lecture')
+                ->pluck('id');
+            $assistant->permissions()->sync($assistantPermissions);
         }
     }
 }

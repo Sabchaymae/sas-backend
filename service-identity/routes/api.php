@@ -5,8 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\PasswordResetController;
 use App\Http\Controllers\Api\V1\ActivityLogController;
-use App\Http\Controllers\Api\V1\UserController;
-use App\Http\Controllers\Api\V1\RolePermissionController;
+use App\Http\Controllers\Api\V1\UserController;use App\Http\Controllers\Api\V1\RolePermissionController;
+use App\Http\Controllers\Api\V1\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -102,6 +102,17 @@ Route::prefix('v1')->group(function () {
             'status' => 'healthy',
             'time' => now()->toIso8601String(),
         ]);
+    });
+
+    // ─── Dashboard Routes ────────────────────────────────────────────
+    Route::prefix('dashboard')->middleware('auth:sanctum')->group(function () {
+        Route::get('/kpis', [DashboardController::class, 'getKPIs']);
+        Route::get('/alerts', [DashboardController::class, 'getAlerts']);
+        Route::get('/activity', [DashboardController::class, 'getActivity']);
+        Route::get('/performance', [DashboardController::class, 'getPerformance']);
+        Route::get('/ai-suggestions', [DashboardController::class, 'getAISuggestions']);
+        Route::get('/charts', [DashboardController::class, 'getCharts']);
+        Route::get('/system-health', [DashboardController::class, 'getSystemHealth']);
     });
 });
 

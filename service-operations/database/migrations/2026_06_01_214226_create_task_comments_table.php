@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('task_comments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('task_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('user_id'); // Pas de contrainte physique car l'utilisateur est dans une autre DB
             $table->text('content');
             $table->enum('type', ['comment', 'issue'])->default('comment');
             $table->timestamps();

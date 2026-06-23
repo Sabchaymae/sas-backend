@@ -1,0 +1,38 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+
+  - job_name: 'identity'
+    metrics_path: /prometheus
+    static_configs:
+      - targets:
+          - identity-nginx:80
+
+  - job_name: 'operations'
+    metrics_path: /prometheus
+    static_configs:
+      - targets:
+          - operations-nginx:80
+
+  - job_name: 'communication'
+    metrics_path: /prometheus
+    static_configs:
+      - targets:
+          - communication-nginx:80
+
+  - job_name: 'ai-similarity'
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - ai-similarity-service:8000
+
+  - job_name: 'qdrant'
+    static_configs:
+      - targets:
+          - qdrant:6333
+
+  - job_name: 'ollama'
+    static_configs:
+      - targets:
+          - ollama:11434

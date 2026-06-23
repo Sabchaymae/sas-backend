@@ -50,7 +50,7 @@ x-nginx-sidecar: &nginx-sidecar
 
 services:
 
-  # ===========================
+  # ===========================c
   #  INFRASTRUCTURE
   # ===========================
 
@@ -108,11 +108,9 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-
   # ===========================
   #  API GATEWAY
-  # ===========================
-
+  # ==========================
   api-gateway:
     build:
       context: ./api-gateway
@@ -127,13 +125,10 @@ services:
       - identity-nginx
       - operations-nginx
       - communication-nginx
-      - subscription-nginx
-      - ocr-python
-
+      - ai-similarity-service
   # ===========================
   #  SERVICE: IDENTITY
   # ===========================
-
   identity-php:
     <<: *php-service
     container_name: oriotel1-identity-php
@@ -157,11 +152,9 @@ services:
       - "8092:80"
     depends_on:
       - identity-php
-
   # ===========================
   #  SERVICE: OPERATIONS
   # ===========================
-
   operations-php:
     <<: *php-service
     container_name: oriotel1-operations-php
@@ -232,11 +225,9 @@ services:
       - "8093:80"
     depends_on:
       - operations-php
-
-  # ===========================
+  # ==========================
   #  SERVICE: COMMUNICATION
   # ===========================
-
   communication-php:
     <<: *php-service
     container_name: oriotel1-communication-php
@@ -268,11 +259,9 @@ services:
       - "8094:80"
     depends_on:
       - communication-php
-
   # ===========================
   #  LARAVEL REVERB
   # ===========================
-
   reverb:
     <<: *php-service
     container_name: oriotel1-reverb
@@ -297,58 +286,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-
-  # ===========================
-  #  SERVICE: SUBSCRIPTION
-  # ===========================
-
-  subscription-php:
-    <<: *php-service
-    container_name: oriotel1-subscription-php
-    volumes:
-      - ./service-subscription:/var/www/html
-    environment:
-      <<: *php-env
-      DB_DATABASE: oriotel1_subscription
-      APP_NAME: "Oriotel1 Subscription"
-      APP_KEY: ${SUBSCRIPTION_APP_KEY:-base64:SubKeyPlaceholder1234567890ABCDEF=}
-
-  subscription-nginx:
-    <<: *nginx-sidecar
-    container_name: oriotel1-subscription-nginx
-    environment:
-      PHP_FPM_HOST: subscription-php
-    volumes:
-      - ./service-subscription:/var/www/html
-      - ./docker/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
-    ports:
-      - "8096:80"
-    depends_on:
-      - subscription-php
-
-  # ===========================
-  #  SERVICE: OCR
-  # ===========================
-
-  ocr-python:
-    build:
-      context: ./service-ocr
-      dockerfile: Dockerfile
-    container_name: oriotel1-ocr-python
-    restart: unless-stopped
-    networks:
-      - oriotel1-network
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 10s
-      timeout: 5s
-      start_period: 60s
-      retries: 5
-
   # ===========================
   #  AI & VECTOR SEARCH
   # ===========================
@@ -392,7 +329,8 @@ services:
     depends_on:
       - qdrant
       - ollama
-
+    ports:
+      - "8005:8000"
 # ===========================
 #  VOLUMES
 # ===========================
@@ -409,7 +347,6 @@ volumes:
 
   ollama-data:
     driver: local
-
 # ===========================
 #  NETWORKS
 # ===========================

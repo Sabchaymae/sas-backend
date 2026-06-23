@@ -1,0 +1,10 @@
+
+   INFO  Starting server on 0.0.0.0:8085.  
+
+  Pruning Stale Connections ..................................................  
+
+ [ERROR] Laravel\Reverb\ConfigApplicationProvider::findById(): Argument #1 ($id)
+         must be of type string, null given, called in                          
+         /var/www/html/vendor/laravel/reverb/src/ConfigApplicationProvider.php  
+         on line 27                                                             
+

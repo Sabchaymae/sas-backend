@@ -9,20 +9,24 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    public function index(Request $request)
-    {
-        $user = $request->user();
-        $query = Task::with(['users', 'comments.user']);
+    public function index(Request $request) {
+        try {
+            $user = $request->user();
+            $query = Task::with(['users', 'comments.user']);
 
-        // Si l'utilisateur n'est pas admin, il ne voit que ses tâches
-        if ($user && $user->role !== 'admin') {
-            $query->whereHas('users', function($q) use ($user) {
-                $q->where('users.id', $user->id);
-            });
+            // Si l'utilisateur n'est pas admin, il ne voit que ses propres tâches
+            if ($user && !$user->isAdmin()) {
+                $query->whereHas('users', function($q) use ($user) {
+                    $q->where('users.id', $user->id);
+                });
+            }
+
+            $tasks = $query->orderBy('updated_at', 'desc')->get();
+            return TaskResource::collection($tasks);
+        } catch (\Exception $e) {
+            \Log::error('Task index failed:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        $tasks = $query->orderBy('updated_at', 'desc')->get();
-        return TaskResource::collection($tasks);
     }
 
     public function store(Request $request)
@@ -40,32 +44,20 @@ class TaskController extends Controller
         ]);
 
         try {
-            // Extraire les utilisateurs assignés avant la création
-            $assignedUsers = $request->input('assigned_users', []);
-            
-            // Auto-sync des utilisateurs : s'ils n'existent pas en local, on les crée
-            // (Simule une synchronisation inter-services)
-            foreach ($assignedUsers as $userId) {
-                if (!User::where('id', $userId)->exists()) {
-                    $newUser = new User();
-                    $newUser->id = $userId;
-                    $newUser->name = "Utilisateur #$userId";
-                    $newUser->email = "user$userId@oriotel.local";
-                    $newUser->password = bcrypt('password');
-                    $newUser->role = 'user';
-                    $newUser->save();
-                }
-            }
-
-            // Créer la tâche
+            // Créer la tâche avec tous les champs possibles
             $taskData = $request->only([
-                'title', 'description', 'status', 'priority', 'due_date'
+                'title', 'description', 'status', 'priority', 'due_date',
+                'client_name', 'client_phone', 'client_address', 'client_email',
+                'incident_date', 'is_recurring', 'is_incident'
             ]);
             
             $task = Task::create($taskData);
 
+            // Synchroniser les utilisateurs assignés (ils existent dans Identity)
+            $assignedUsers = $request->input('assigned_users', []);
             if (!empty($assignedUsers)) {
                 $task->users()->sync($assignedUsers);
+                $task->update(['assigned_at' => now()]);
             }
 
             \Log::info('Task created successfully:', ['id' => $task->id]);
@@ -96,28 +88,17 @@ class TaskController extends Controller
         ]);
 
         try {
-            $assignedUsers = $request->input('assigned_users', []);
-            
-            // Auto-sync des utilisateurs : s'ils n'existent pas en local, on les crée
-            if ($request->has('assigned_users')) {
-                foreach ($assignedUsers as $userId) {
-                    if (!User::where('id', $userId)->exists()) {
-                        $newUser = new User();
-                        $newUser->id = $userId;
-                        $newUser->name = "Utilisateur #$userId";
-                        $newUser->email = "user$userId@oriotel.local";
-                        $newUser->password = bcrypt('password');
-                        $newUser->role = 'user';
-                        $newUser->save();
-                    }
-                }
-            }
-
-            $taskData = $request->only(['title', 'description', 'status', 'priority', 'due_date']);
+            $taskData = $request->only([
+                'title', 'description', 'status', 'priority', 'due_date',
+                'client_name', 'client_phone', 'client_address', 'client_email',
+                'incident_date', 'is_recurring', 'is_incident'
+            ]);
             $task->update($taskData);
 
             if ($request->has('assigned_users')) {
+                $assignedUsers = $request->input('assigned_users', []);
                 $task->users()->sync($assignedUsers);
+                $task->update(['assigned_at' => now()]);
             }
 
             \Log::info('Task updated successfully:', ['id' => $task->id]);

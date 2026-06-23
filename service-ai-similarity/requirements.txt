@@ -3,3 +3,9 @@ uvicorn
 httpx
 qdrant-client>=1.10.0
 pydantic
+pandas
+scikit-learn
+numpy
+pyzk>=0.9.4
+prometheus-client
+

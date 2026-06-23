@@ -26,7 +26,8 @@ return new class extends Migration
             $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();
             
-            $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
+            // Pas de contrainte physique car l'utilisateur est dans une autre DB
+            // $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
         });
     }
 

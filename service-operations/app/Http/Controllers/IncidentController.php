@@ -11,7 +11,15 @@ class IncidentController extends Controller
 {
     public function index()
     {
-        $incidents = Incident::with('creator')->orderBy('created_at', 'desc')->get();
+        $user = auth()->user();
+        $query = Incident::with('creator');
+        
+        // If not admin, only show own incidents
+        if (!($user->isAdmin() || $user->role === 'admin' || $user->role === 'administrateur')) {
+            $query->where('created_by', $user->id);
+        }
+        
+        $incidents = $query->orderBy('created_at', 'desc')->get();
         return IncidentResource::collection($incidents);
     }
 
@@ -99,6 +107,12 @@ class IncidentController extends Controller
     public function update(Request $request, $id)
     {
         $incident = Incident::findOrFail($id);
+        $user = auth()->user();
+
+        // Only allow admin or incident creator to update
+        if (!($user->isAdmin() || $user->role === 'admin' || $user->role === 'administrateur' || $incident->created_by === $user->id)) {
+            return response()->json(['message' => 'Accès refusé'], 403);
+        }
 
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
@@ -129,6 +143,13 @@ class IncidentController extends Controller
     public function destroy($id)
     {
         $incident = Incident::findOrFail($id);
+        $user = auth()->user();
+
+        // Only allow admin or incident creator to delete
+        if (!($user->isAdmin() || $user->role === 'admin' || $user->role === 'administrateur' || $incident->created_by === $user->id)) {
+            return response()->json(['message' => 'Accès refusé'], 403);
+        }
+
         $incident->delete();
         return response()->json(['message' => 'Incident supprimé avec succès']);
     }

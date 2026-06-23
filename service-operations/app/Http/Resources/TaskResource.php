@@ -15,9 +15,12 @@ class TaskResource extends JsonResource
             'description' => $this->description,
             'status' => $this->status,
             'priority' => $this->priority,
-            'due_date' => $this->due_date,
+            'due_date' => $this->due_date ? $this->due_date->format('Y-m-d') : null,
             'attachments_count' => $this->attachments_count,
             'comments_count' => $this->comments_count,
+            'estimated_duration' => $this->estimated_duration,
+            'assigned_at' => $this->assigned_at ? $this->assigned_at->format('Y-m-d H:i') : null,
+            'is_timeout' => $this->is_timeout,
             'users' => $this->users->map(function($user) {
                 return [
                     'id' => $user->id,
@@ -30,9 +33,12 @@ class TaskResource extends JsonResource
                     'id' => $comment->id,
                     'content' => $comment->content,
                     'type' => $comment->type,
-                    'user' => [
+                    'user' => $comment->user ? [
                         'id' => $comment->user->id,
                         'name' => $comment->user->name,
+                    ] : [
+                        'id' => null,
+                        'name' => 'Utilisateur inconnu',
                     ],
                     'created_at' => $comment->created_at,
                 ];
